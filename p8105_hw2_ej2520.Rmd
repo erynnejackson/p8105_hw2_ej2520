@@ -137,6 +137,7 @@ bakers_df =
 ```
 
 Next, we are importing and cleaning the bakes dataset. 
+
 ```{r}
 bakes_df = 
   read_csv("gbb_datasets/bakes.csv",
@@ -145,18 +146,26 @@ bakes_df =
 ```
 
 Finally, we are importing and cleaning the results dataset. For the results dataset, I renamed the columns "series", "episode", "baker", "technical", and "results." Next, I am going to remove the first three rows of the results dataset, and then change the series and episode variables to numeric. Should I have changed the results variable to something other than character? 
+
 ```{r}
 results_df = 
   read_csv("gbb_datasets/results.csv", 
-    na = c("NA", "", "."), col_names = c("series", "episode", "baker", "technical","result" ), col_types = cols('series' = col_double(), 'episode' = col_double(), 'technical' = col_double())) |>
+    na = c("NA", "", "."), col_names = c("series", "episode", "baker", "technical","result"), col_types = cols('series' = col_double(), 'episode' = col_double(), 'technical' = col_double())) |>
   janitor::clean_names() 
 results_df <- results_df[-c(1,2,3),]
 ```
 
-Now, I am going to merge the datasets together. 
-
+Merging the datasets. 
 ```{r}
-bake_tidy = 
-  anti_join(bakers_df, bakes_df, by= "series")
+bakers_mid <- bakers_df |>
+  anti_join(bakes_df, by = "series")
+
+bake_final <- bakers_mid |>
+  anti_join(results_df, by = "series")
 ```
 
+Exporting the datasets. 
+
+```{r}
+write_csv(bake_final, "bake_final.csv")
+```
