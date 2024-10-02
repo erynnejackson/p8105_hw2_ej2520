@@ -3,7 +3,6 @@ title: "Homework 2: Data Wrangling"
 output: github_document
 ---
 
-
 ## Problem 1
 
 This is the start of Homework 2 for P8105: Data Science 1. First, we are going to attach the packages needed for this homework.  
@@ -13,7 +12,7 @@ library(tidyverse)
 library(readxl)
 ```
 
-Next, we are going to import and clean the NYC Transit Subway dataset. 
+Next, we are going to import and clean the NYC Transit Subway dataset.  
 
 ```{r Importing Data}
 transit_df = 
@@ -25,3 +24,106 @@ janitor::clean_names() |>
     entry, exit_only, vending, entrance_type, ada) |>
   mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
 ```
+
+
+How many distinct stations are there? 
+
+```{r}
+transit_df |> 
+  select(station_name, line) |>
+  distinct()
+```
+
+How many stations are ADA complaint? 84 stations. 
+```{r}
+transit_df |> 
+  filter(ada == "TRUE") |>
+  select(station_name, line) |> 
+  distinct()
+```
+
+
+What proportion of station entrances/exits without vending allow entrance? 
+
+```{r}
+transit_df |> 
+  filter(vending == "NO") |>
+  pull(entry) |>
+  mean()
+```
+
+How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA complaint? 
+
+60 stations serve the A train. Of the stations that serve the A train, none are ADA complaint. 
+
+```{r}
+transit_df |> 
+  pivot_longer(
+    route1:route11, 
+    names_to = "route_num", 
+    values_to = "route") |>
+  filter(route == "A") |>
+  select(station_name, line) |>
+  distinct()
+
+transit_df |> 
+  pivot_longer(
+    route1:route11,
+    names_to = "route") |>
+  filter(route == "A", ada == TRUE) |>
+  select(station_name, line) |>
+  distinct()
+```
+
+## Problem 2
+
+This is the start of Problem 2. First, we are going to import the Mr. Trash Wheel dataset.We will clean the variable names, and convert the sports_balls variable into an integer variable. 
+
+```{r}
+library(readxl)
+
+trash_df = 
+  read_excel("202409_Trash_Wheel_Collection_Data.xlsx",
+    na = c("NA", "")) |> 
+  janitor::clean_names() |> 
+  mutate(sports_balls = as.integer(round(sports_balls))) |>
+  mutate(year = as.numeric(year)) |>
+  mutate(mr_trash_wheel = plastic_bottles + plastic_bags) 
+```
+
+Next, we are importing the Professor Trash Wheel sheet from the Trash Wheel dataset.
+
+```{r}
+professor_df = 
+  read_excel("202409_Trash_Wheel_Collection_Data.xlsx", sheet = "Professor Trash Wheel",
+    na = c("NA", "")) |>
+  janitor::clean_names() |>
+  mutate(professor_wheel = plastic_bottles + plastic_bags)
+```
+
+Now, we are importing the Gwynnda Trash Wheel sheet from the Trash Wheel dataset.
+
+```{r}
+Gwynnda_df = 
+  read_excel("202409_Trash_Wheel_Collection_Data.xlsx", sheet = "Gwynnda Trash Wheel",
+    na = c("NA", "")) |>
+  janitor::clean_names() |> 
+mutate(Gwynnda_wheel = plastic_bottles + plastic_bags)
+```
+
+As the next step to this problem, we are going to combine the Mr. Trash Wheel, Professor Trash Wheel, and the Gwynnda Trash Wheel datasets. 
+
+```{r Binding}
+trash_tidy = 
+  bind_rows(trash_df, professor_df, Gwynnda_df) |> 
+  janitor:: clean_names() |> 
+  pivot_longer(
+    mr_trash_wheel:gwynnda_wheel,
+    names_to = "Dataset_type", 
+    values_to = "plastic")
+```
+
+Our combined data has 3,114 observations and 18 variables.Some key variables are weight_tons, volume_cubic_yards, plastic_bottles, polystyrene, cigarette_butts, and glass_bottles. 
+
+##Problem 3 
+
