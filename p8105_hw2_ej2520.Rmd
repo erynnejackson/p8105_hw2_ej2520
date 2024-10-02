@@ -125,6 +125,14 @@ trash_tidy =
 
 Our combined data has 3,114 observations and 18 variables.Some key variables are weight_tons, volume_cubic_yards, plastic_bottles, polystyrene, cigarette_butts, and glass_bottles. 
 
+```{r}
+trash_tidy |>
+  filter(Dataset_type == "professor_wheel") |>
+  pull(weight_tons)
+sum()
+```
+  
+
 ## Problem 3 
 
 First, I am going to import and clean the individual bakers dataset. 
@@ -133,7 +141,9 @@ First, I am going to import and clean the individual bakers dataset.
 bakers_df = 
   read_csv("gbb_datasets/bakers.csv",
     na = c("NA", "", ".")) |>
-  janitor::clean_names()
+  janitor::clean_names() |>
+  select(series, everything()) |>
+  arrange(series)
 ```
 
 Next, we are importing and cleaning the bakes dataset. 
