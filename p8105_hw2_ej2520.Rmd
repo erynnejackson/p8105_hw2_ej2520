@@ -142,7 +142,7 @@ bakers_df =
   read_csv("gbb_datasets/bakers.csv",
     na = c("NA", "", ".")) |>
   janitor::clean_names() |>
-  select(series, everything()) |>
+  select(baker = baker_name,everything()) |>
   arrange(series)
 ```
 
@@ -168,10 +168,10 @@ results_df <- results_df[-c(1,2,3),]
 Merging the datasets. 
 ```{r}
 bakers_mid <- bakers_df |>
-  anti_join(bakes_df, by = "series")
+  anti_join(bakes_df, by = "baker")
 
 bake_final <- bakers_mid |>
-  anti_join(results_df, by = "series")
+  anti_join(results_df, by = "baker")
 ```
 
 Exporting the datasets. 
